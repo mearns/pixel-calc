@@ -2,11 +2,217 @@
 <html>
 
 <head>
-    <titl>Pixel Calc</titl>
+    <title>Pixel Calc</title>
+    <style type="text/css">
+        canvas#canvas {
+            height: 400px;
+            width: 400px;
+            border: 1px solid gray;
+            margin-right: 20px;
+            margin-bottom: 5ex;
+        }
+
+        textarea#input {
+            width: 800px;
+            min-height: 20ex;
+        }
+
+        #error {
+            color: rgb(200, 0, 0);
+            min-width: 400px;
+            vertical-align: top;
+            padding-left: 30px
+        }
+    </style>
+
+    <script type="application/javascript">
+        function run() {
+            const errorDiv = document.getElementById("error");
+            errorDiv.innerHTML = "";
+
+            let redValue = 0;
+            let greenValue = 0;
+            let blueValue = 0;
+            const red = (v) => {
+                redValue = v;
+            }
+            const green = (v) => {
+                greenValue = v;
+            }
+            const blue = (v) => {
+                blueValue = v;
+            }
+            const roll = (v) => v % 100;
+            const reflect = (v) => {
+                while (v > 100 || v < 0) {
+                    if (v > 100) {
+                        const over = v - 100;
+                        v = 100 - over;
+                    } else if (v < 0) {
+                        v = -v;
+                    }
+                }
+                return v;
+            }
+            const getColor = () => {
+                const [r, g, b] = [redValue, greenValue, blueValue].map(c => {
+                    const pct = c > 100 ? 100 : c < 0 ? 0 : c;
+                    const value = parseInt(Math.round(255 * (pct / 100)));
+                    if (value < 0) {
+                        return 0;
+                    } else if (value > 255) {
+                        return 255;
+                    }
+                    return value;
+                });
+                return `rgb(${r}, ${g}, ${b})`;
+            }
+
+            const newCode = document.getElementById("input").value;
+
+            const func = new Function("x", "y", "w", "h", "red", "green", "blue", "roll", "reflect", newCode);
+
+            const canvas = document.getElementById("canvas");
+            const width = canvas.width;
+            const height = canvas.height;
+            const ctx = canvas.getContext("2d");
+            ctx.clearRect(0, 0, width, height);
+            let x;
+            let y;
+            try {
+                for (x = 0; x < width; x++) {
+                    for (y = 0; y < height; y++) {
+                        redValue = 0;
+                        blueValue = 0;
+                        greenValue = 0;
+                        func(x, y, width, height, red, green, blue, roll, reflect);
+                        ctx.fillStyle = getColor();
+                        ctx.fillRect(x, y, 1, 1);
+                    }
+                }
+            } catch (error) {
+                const title = document.createElement("h3");
+                title.appendChild(document.createTextNode("Error running code:"))
+                errorDiv.appendChild(title);
+                errorDiv.appendChild(document.createTextNode(`x = ${x}`))
+                errorDiv.appendChild(document.createElement("br"));
+                errorDiv.appendChild(document.createTextNode(`y = ${y}`))
+                errorDiv.appendChild(document.createElement("br"));
+                errorDiv.appendChild(document.createTextNode(`w = ${width}`))
+                errorDiv.appendChild(document.createElement("br"));
+                errorDiv.appendChild(document.createTextNode(`h = ${height}`))
+                errorDiv.appendChild(document.createElement("br"));
+                const subtitle = document.createElement("h4");
+                subtitle.appendChild(document.createTextNode("Error:"));
+                errorDiv.appendChild(subtitle);
+                errorDiv.appendChild(document.createTextNode(error));
+                console.error(error);
+            }
+        }
+    </script>
 </head>
 
-<body>
-    Hello
+<body onload="javascript:run()">
+    <table>
+        <tbody>
+            <tr>
+                <td>
+                    <canvas id="canvas" width="600" height="600"></canvas>
+                </td>
+                <td style="vertical-align: top">
+                    <p>
+                        Write your code in the box below. Your code will set the color
+                        of each pixel in the image to the left.
+                    </p>
+
+                    <p>
+                        Use the <em>functions</em> called <code>red()</code>, <code>blue()</code>,
+                        and <code>green()</code> to mix the color for the pixel. For instance,
+                        <code>red(100)</code> mixes in the maximum amount of red (100%).
+                        Using <code>red(100)</code> and <code>blue(100)</code> will mix maximum
+                        amounts of red <em>and</em> blue, so you'll get a bright purple color.
+                    </p>
+                    <p>
+                        You have some <em>variables</em> you can use in your code as well:
+                    <ul>
+                        <li><strong><code>w</code></strong>: The width of the image, the number of pixels
+                            <em>across</em>
+                        </li>
+                        <li><strong><code>h</code></strong>: The height of the image, the number of pixels
+                            <em>up and down</em>
+                        </li>
+                        <li><strong><code>x</code></strong>: The horizontal (left-right) position of the pixel.
+                            All the way to the left, <code>x</code> is 0. All the way to the right, <code>x</code>
+                            is equal to <code>w - 1</code>.
+                        </li>
+                        <li><strong><code>y</code></strong>: The vertical (up-down) position of the pixel.
+                            All the way at the top, <code>y</code> is 0. All the way at the bottom, <code>y</code>
+                            is equal to <code>h - 1</code>.
+                        </li>
+                    </ul>
+                    </p>
+                    <p>
+                        You can add values together with <code>+</code>, and subtract values with <code>-</code>.
+                        To muliply values use <code>*</code>. and to divide use <code>/</code>.
+                        You can also use parenthesis to control the order of operations.
+                    </p>
+                </td>
+                <td style="vertical-align: top; padding-left: 3em">
+                    <p>
+                        Here are some example snippets:
+                    </p>
+                    <p>
+                        Make everything cyan (blue + green):
+                    <pre>
+blue(100)
+green(100)
+                    </pre>
+                    </p>
+                    <p>
+                        Make everything grey:
+                    <pre>
+red(50)
+blue(50)
+green(50)
+                    </pre>
+                    <p>
+                        Make the red component increase going from left to right:
+                    <pre>
+red( (x / w) * 100 )
+                    </pre>
+                    </p>
+                    <p>
+                        Make three green stripes:
+                    <pre>
+green(roll( 3 * (x/w) * 100 ))
+                        </pre>
+                    </p>
+                    <p>
+                        Make a different kind of blue strip
+                    <pre>
+blue(reflect( 5 * (x/w) * 100 ))
+                        </pre>
+                    </p>
+                </td>
+            </tr>
+            <tr>
+                <td colspan="2">
+                    <pre>
+function colorPixel(x, y, width, height, red, green, blue, roll, reflect) {
+    <textarea id="input">
+red((x/w) * 100)
+green((y/h) * 100)
+    </textarea>
+}
+                    </pre>
+                    <br />
+                    <button id="run-button" onclick="javascript:run()">Run</button>
+                </td>
+                <td id="error">
+                </td>
+            </tr>
+        </tbody>
+    </table>
 </body>
 
 </html>
