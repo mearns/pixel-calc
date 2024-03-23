@@ -33,89 +33,91 @@
         function run() {
             const input = document.getElementById("input");
             input.classList.add("busy");
-            const newCode = input.value;
+            setTimeout(() => {
+                const newCode = input.value;
 
-            const errorDiv = document.getElementById("error");
-            errorDiv.innerHTML = "";
+                const errorDiv = document.getElementById("error");
+                errorDiv.innerHTML = "";
 
-            let redValue = 0;
-            let greenValue = 0;
-            let blueValue = 0;
-            const red = (v) => {
-                redValue = v;
-            }
-            const green = (v) => {
-                greenValue = v;
-            }
-            const blue = (v) => {
-                blueValue = v;
-            }
-            const roll = (v) => v % 100;
-            const reflect = (v) => {
-                while (v < 0) {
-                    v += 200;
+                let redValue = 0;
+                let greenValue = 0;
+                let blueValue = 0;
+                const red = (v) => {
+                    redValue = v;
                 }
-                v = v % 200;
-                if (v > 100) {
-                    const over = v - 100;
-                    v = 100 - over;
+                const green = (v) => {
+                    greenValue = v;
                 }
-                return v;
-            }
-            const getColor = () => {
-                const [r, g, b] = [redValue, greenValue, blueValue].map(c => {
-                    const pct = c > 100 ? 100 : c < 0 ? 0 : c;
-                    const value = parseInt(Math.round(255 * (pct / 100)));
-                    if (value < 0) {
-                        return 0;
-                    } else if (value > 255) {
-                        return 255;
+                const blue = (v) => {
+                    blueValue = v;
+                }
+                const roll = (v) => v % 100;
+                const reflect = (v) => {
+                    while (v < 0) {
+                        v += 200;
                     }
-                    return value;
-                });
-                return `rgb(${r}, ${g}, ${b})`;
-            }
-
-            let i;
-            let j;
-            let x;
-            let y;
-
-            try {
-                const func = new Function("x", "y", "red", "green", "blue", "roll", "reflect", "i", "w", "j", "h", newCode);
-
-                const canvas = document.getElementById("canvas");
-                const width = canvas.width;
-                const height = canvas.height;
-                const ctx = canvas.getContext("2d");
-                ctx.clearRect(0, 0, width, height);
-                for (i = 0; i < width; i++) {
-                    x = 100 * i / (width - 1);
-                    for (j = 0; j < height; j++) {
-                        y = 100 * j / (height - 1);
-                        redValue = 0;
-                        blueValue = 0;
-                        greenValue = 0;
-                        func(x, y, red, green, blue, roll, reflect, i, width, j, height);
-                        ctx.fillStyle = getColor();
-                        ctx.fillRect(i, j, 1, 1);
+                    v = v % 200;
+                    if (v > 100) {
+                        const over = v - 100;
+                        v = 100 - over;
                     }
+                    return v;
                 }
-            } catch (error) {
-                const title = document.createElement("h3");
-                title.appendChild(document.createTextNode("Error running code:"))
-                errorDiv.appendChild(title);
-                errorDiv.appendChild(document.createTextNode(`x = ${Math.round(x)}`))
-                errorDiv.appendChild(document.createElement("br"));
-                errorDiv.appendChild(document.createTextNode(`y = ${Math.round(y)}`))
-                errorDiv.appendChild(document.createElement("br"));
-                const subtitle = document.createElement("h4");
-                subtitle.appendChild(document.createTextNode("Error:"));
-                errorDiv.appendChild(subtitle);
-                errorDiv.appendChild(document.createTextNode(error));
-                console.error(error);
-            }
-            input.classList.remove("busy");
+                const getColor = () => {
+                    const [r, g, b] = [redValue, greenValue, blueValue].map(c => {
+                        const pct = c > 100 ? 100 : c < 0 ? 0 : c;
+                        const value = parseInt(Math.round(255 * (pct / 100)));
+                        if (value < 0) {
+                            return 0;
+                        } else if (value > 255) {
+                            return 255;
+                        }
+                        return value;
+                    });
+                    return `rgb(${r}, ${g}, ${b})`;
+                }
+
+                let i;
+                let j;
+                let x;
+                let y;
+
+                try {
+                    const func = new Function("x", "y", "red", "green", "blue", "roll", "reflect", "i", "w", "j", "h", newCode);
+
+                    const canvas = document.getElementById("canvas");
+                    const width = canvas.width;
+                    const height = canvas.height;
+                    const ctx = canvas.getContext("2d");
+                    ctx.clearRect(0, 0, width, height);
+                    for (i = 0; i < width; i++) {
+                        x = 100 * i / (width - 1);
+                        for (j = 0; j < height; j++) {
+                            y = 100 * j / (height - 1);
+                            redValue = 0;
+                            blueValue = 0;
+                            greenValue = 0;
+                            func(x, y, red, green, blue, roll, reflect, i, width, j, height);
+                            ctx.fillStyle = getColor();
+                            ctx.fillRect(i, j, 1, 1);
+                        }
+                    }
+                } catch (error) {
+                    const title = document.createElement("h3");
+                    title.appendChild(document.createTextNode("Error running code:"))
+                    errorDiv.appendChild(title);
+                    errorDiv.appendChild(document.createTextNode(`x = ${Math.round(x)}`))
+                    errorDiv.appendChild(document.createElement("br"));
+                    errorDiv.appendChild(document.createTextNode(`y = ${Math.round(y)}`))
+                    errorDiv.appendChild(document.createElement("br"));
+                    const subtitle = document.createElement("h4");
+                    subtitle.appendChild(document.createTextNode("Error:"));
+                    errorDiv.appendChild(subtitle);
+                    errorDiv.appendChild(document.createTextNode(error));
+                    console.error(error);
+                }
+                input.classList.remove("busy");
+            }, 0);
         }
     </script>
 </head>
