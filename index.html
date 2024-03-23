@@ -63,6 +63,12 @@
                     }
                     return v;
                 }
+                const dist = (ptx, pty) => {
+                    const dx = x - ptx;
+                    const dy = y - pty;
+                    return Math.sqrt(dx * dx + dy * dy);
+                }
+
                 const getColor = () => {
                     const [r, g, b] = [redValue, greenValue, blueValue].map(c => {
                         const pct = c > 100 ? 100 : c < 0 ? 0 : c;
@@ -83,7 +89,7 @@
                 let y;
 
                 try {
-                    const func = new Function("x", "y", "red", "green", "blue", "roll", "reflect", "i", "w", "j", "h", newCode);
+                    const func = new Function("x", "y", "red", "green", "blue", "roll", "reflect", "i", "w", "j", "h", "dist", newCode);
 
                     const canvas = document.getElementById("canvas");
                     const width = canvas.width;
@@ -97,7 +103,7 @@
                             redValue = 0;
                             blueValue = 0;
                             greenValue = 0;
-                            func(x, y, red, green, blue, roll, reflect, i, width, j, height);
+                            func(x, y, red, green, blue, roll, reflect, i, width, j, height, dist);
                             ctx.fillStyle = getColor();
                             ctx.fillRect(i, j, 1, 1);
                         }
@@ -202,7 +208,7 @@ blue(reflect( 5 * x ))
             <tr>
                 <td colspan="2">
                     <pre>
-function colorPixel(x, y, red, green, blue, roll, reflect, i, w, j, h) {
+function colorPixel(x, y, red, green, blue, roll, reflect, i, w, j, h, ...) {
     <textarea id="input" data-enable-grammarly="false" data-gramm_editor="false" data-gramm="false" spellcheck="false">
 red(x)
 green(y)
