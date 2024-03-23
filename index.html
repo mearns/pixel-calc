@@ -44,13 +44,13 @@
             }
             const roll = (v) => v % 100;
             const reflect = (v) => {
-                while (v > 100 || v < 0) {
-                    if (v > 100) {
-                        const over = v - 100;
-                        v = 100 - over;
-                    } else if (v < 0) {
-                        v = -v;
-                    }
+                while (v < 0) {
+                    v += 200;
+                }
+                v = v % 200;
+                if (v > 100) {
+                    const over = v - 100;
+                    v = 100 - over;
                 }
                 return v;
             }
@@ -198,7 +198,7 @@ blue(reflect( 5 * (x/w) * 100 ))
             <tr>
                 <td colspan="2">
                     <pre>
-function colorPixel(x, y, width, height, red, green, blue, roll, reflect) {
+function colorPixel(x, y, w, h, red, green, blue, roll, reflect) {
     <textarea id="input">
 red((x/w) * 100)
 green((y/h) * 100)
