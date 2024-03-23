@@ -51,6 +51,26 @@
                 const blue = (v) => {
                     blueValue = v;
                 }
+                const gray = (v) => {
+                    red(v);
+                    green(v);
+                    blue(v);
+                }
+                const yellow = (v) => {
+                    red(v);
+                    green(v);
+                }
+                const purple = (v) => {
+                    red(v);
+                    blue(v);
+                }
+                const cyan = (v) => {
+                    green(v);
+                    blue(v);
+                }
+                const blend = (v1, v2) => {
+                    return (v1 + v2) / 2;
+                }
                 const roll = (v) => v % 100;
                 const reflect = (v) => {
                     while (v < 0) {
@@ -89,7 +109,7 @@
                 let y;
 
                 try {
-                    const func = new Function("x", "y", "red", "green", "blue", "roll", "reflect", "i", "w", "j", "h", "dist", newCode);
+                    const func = new Function("x", "y", "red", "green", "blue", "roll", "reflect", "i", "w", "j", "h", "dist", "gray", "yellow", "purple", "cyan", "blend", newCode);
 
                     const canvas = document.getElementById("canvas");
                     const width = canvas.width;
@@ -103,7 +123,7 @@
                             redValue = 0;
                             blueValue = 0;
                             greenValue = 0;
-                            func(x, y, red, green, blue, roll, reflect, i, width, j, height, dist);
+                            func(x, y, red, green, blue, roll, reflect, i, width, j, height, dist, gray, yellow, purple, cyan, blend);
                             ctx.fillStyle = getColor();
                             ctx.fillRect(i, j, 1, 1);
                         }
