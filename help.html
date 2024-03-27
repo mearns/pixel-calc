@@ -265,6 +265,29 @@
         <div data-example="true">
             <div>
                 <canvas width="100" height="100"></canvas>
+                <pre>gray(x + sin(y))
+            </div>
+            <p>
+                Add the <code>sin(y)</code> to <code>x</code> to add waves.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(reflect(4 * (x + sin(3*y)/10)))
+            </div>
+            <p>
+                Multiply <code>y</code> inside the <code>sin</code> to make tighter, faster waves.
+                Divide the result of the <code>sin</code> to get smaller waves. As usual, multiply
+                the entire sum and use <code>roll</code> or <code>reflect</code> to create the pattern
+                in stripes across the image.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
                 <pre>gray(poster(x, 6))</pre>
             </div>
             <p>
@@ -288,20 +311,51 @@
         <div data-example="true">
             <div>
                 <canvas width="100" height="100"></canvas>
-                <pre>red(reflect(poster(x*4, (y+21)/20)))</pre>
+                <pre>gray(theta(50, 50))</pre>
             </div>
+            <p>
+                The <strong><code>theta(ptx, pty)</code></strong> takes the location of a point,
+                like <code>dist</code> does, but instead of giving the distance from that point, it gives
+                the angle from that point. This creates an effect of "swinging around" the point.
+            </p>
         </div>
+
         <div data-example="true">
             <div>
                 <canvas width="100" height="100"></canvas>
-                <pre>red(poster(reflect(x*4), (y+21)/20))</pre>
+                <pre>rainbow(x)</pre>
+            </div>
+            <p>
+                The <strong><code>rainbow(c)</code></strong> function is a color function,
+                like <code>red</code>, <code>green</code>, <code>blue</code>, etc., except
+                that it produces a rainbow.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>rainbow((3*(x + dist(25,25) + sin(5*y)/20)))</pre>
             </div>
         </div>
 
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>rainbow(3*(x + theta(50,60) + sin(5*y)/20))</pre>
+            </div>
+        </div>
 
-
-
-
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>
+red(reflect(50*(x + theta(50,60) + sin(6*y+4*x)/(y/5))))
+blue(reflect(40*(x + theta(50,60) + sin(6*y+4*x)/(y/5))))
+green(reflect(60*(x + theta(50,60) + sin(6*y+4*x)/(y/5)))/2)
+                </pre>
+            </div>
+        </div>
 
 
 
