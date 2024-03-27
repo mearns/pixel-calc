@@ -1,0 +1,325 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Pixel-Calc Help</title>
+
+    <script type="application/javascript" src="draw-canvas.js"></script>
+    <style type="text/css">
+        section#examples div[data-example] {
+            margin-top: 3ex;
+            display: flex;
+        }
+
+        section#examples canvas {
+            display: inline-block;
+            border: 1px solid gray;
+            margin-right: 2em;
+        }
+
+        section#examples p {
+            margin-top: 0;
+        }
+    </style>
+</head>
+
+<body>
+    <h1>Pixel-Calc Help</h1>
+
+    <p>
+        Welcome to <em>pixel-calc</em>, where you write code to determine how each pixel
+        of an image is colored!
+    </p>
+
+    <h2>Introduction</h2>
+    <p>
+        The image you see is a <em>raster image</em>, defined by a rectangular grid of
+        pixels. The code you write will be be run for each pixel in order to set it's color.
+        You set the color by mixing together red, green, and blue color components, using the
+        <strong><code>red(c)</code></strong>, <strong><code>green(c)</code></strong>, and
+        <strong><code>blue(c)</code></strong> functions.
+
+        The variables <strong><code>x</code></strong> and <strong><code>y</code></strong> give
+        the horizontal and vertical position of your pixel, ranging from 0 to 100. For pixels
+        all the way to the left, <code>x</code> is equal to 0, and the value of <code>x</code>
+        increases as you move to the right. All the way on the right-hand side, the value of
+        <code>x</code> is 100.
+
+        Similarly, the value of <code>y</code> is 0 for pixels in the very top row, and increases
+        going down. The very bottom row has <code>y</code> equal to 100.
+    </p>
+
+    <section id="examples">
+        <h2>Illustrative Examples</h2>
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(x);</pre>
+            </div>
+            <p>
+                The value increases as you move from left to right, from 0 on the left (no color) to 100 on the right
+                (maximum color).
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(y);</pre>
+            </div>
+            <p>
+                The value increases as you move from top to bottom, from 0 at the top (no color) to 100 at the bottom
+                (maximum color).
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(x + y);</pre>
+            </div>
+            <p>
+                Value increases in a diagonal line as you move from the top-left corner to the bottom-right corner.
+                The value is 0 in the top-left corner, but when we reach half-way across, the pixel values are all
+                100 <em>or more</em>. But color values more than 100 are <em>maxed out</em>, meaning they are treated
+                the same as 100, so the second half of the image is just solid white.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray((x + y) / 2);</pre>
+            </div>
+            <p>
+                Similar to the above, but because we're dividing the value by two, we're making it <em>grow more
+                    slowly</em>,
+                so it doesn't max out until it reaches the far corner (bottom-roght).
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray((x + y) * 2);</pre>
+            </div>
+            <p>
+                Like the above, but now we're multiplying the value, so we're making it <em>grow more quickly</em>, so
+                it
+                maxes out at 100 even sooner.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(roll(x + y));</pre>
+            </div>
+            <p>
+                Going back to our <code>(x + y)</code> example (without multiplying or dividing): remember how it maxed
+                out
+                at 100 when it reached halfway? By using the <code>roll</code> function, instead of maxing out above
+                100,
+                it "rolls over", back top 0 and continues from there. (E.g., <code>roll(101)</code> is the same as 1,
+                <code>roll(135)</code> is the same as 35, and so is <code>roll(235)</code>).
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(roll( (x + y) * 2 ));</pre>
+            </div>
+            <p>
+                Now we're multiplying the value before we <code>roll</code> it. Remember that multiplying makes the
+                number
+                grow faster, so it will grow from 0 to 100 more quickly, and therefore roll over more frequently,
+                creating
+                more stripes.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(reflect( (x + y) * 2 ));</pre>
+            </div>
+            <p>
+                We've replaced <code>roll</code> with <code>reflect</code>. Now when a value goes above 100,
+                it bounces back and starts going back down, in the other direction. Same thing happens if it goes below
+                0, it bounces off and start going back up (so 101 becomes 99, 102 becomes 98, etc., -2 becomes 2, -5
+                becomes 5, etc). So instead of having a "sharp" edge where the value rolls over from 100 all the way
+                down to 0, you tend to get fuzzy edges.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(x*y)</pre>
+            </div>
+            <p>
+                If we multiply <code>x</code> and <code>y</code> together, the get this rounded corner shape, but
+                the values <em>max out</em> very quickly, so most of the image is maximum color.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(x*y / 20)</pre>
+            </div>
+            <p>
+                So if you do the same thing, but divide it by a number, you can <em>slow it down</em>, so you don't
+                max out as quickly.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray((100-x)*y / 20)
+            </div>
+            <p>
+                If you replace all the <code>x</code>'s with <code>(100 - x)</code>, it's like your <code>x</code>
+                values are going in the other direction (the result is 0 all the way to the right, and increases as
+                you move to the left). The result is that your image is reflected horizontally.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(x*(100-y) / 20)
+            </div>
+            <p>
+                If you do the trick with <code>y</code> instead of <code>x</code>, the image is reflected vertically.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(dist(50, 50))</pre>
+            </div>
+            <p>
+                The <code>dist</code> function is given two values which are the X and Y location of some point.
+                The function gives you the distance from that point to your <em>current</em> pixel. In this example,
+                we've asked for the distance from the point <code>(50, 50)</code>, which is the middle of the image.
+                Every pixel thats <em>equal distance</em> from this point will have the same color value, which produces
+                circles.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(2*dist(50, 50))</pre>
+            </div>
+            <p>
+                Since the point <code>(50, 50)</code> is in the middle of the picture, no pixels distance to this
+                point is greater than 50, so the resulting colors are going to be pretty dark. If you multiply it
+                like we've done here, you can get a bigger range of colors.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(reflect(5*dist(2*y, 0)))
+            </div>
+            <p>
+                Notice that the <em>center point</em> that you pass to <code>dist</code> doesn't
+                have to be a fixed value, either: each pixel could calculate it's distance from a
+                different point.
+            </p>
+        </div>
+
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(blend( 2*dist(20, 50), 2*dist(80, 50) ))</pre>
+            </div>
+            <p>
+                The <code>blend</code> function takes two values and gives you a new value that's half-way inbetween
+                them. This can be used to blend two images together into one, like we've done here with two different
+                "circles".
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(sin(x))
+            </div>
+            <p>
+                The <code>sin</code> function acts like the sinusoid function from trigonometry, but shifted and scaled to fit
+                the image. As the input value increases, the function's value starts at 50, increases up to 100, decreases back to
+                50 and then keeps going all the way down to 0, then it starts increasing again until it reaches 50 again. The interesting
+                thing about this function is that it doesn't increase or decrease "in a straight line", but rather "bends" the entire
+                time.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(poster(x, 6))</pre>
+            </div>
+            <p>
+                The <code>poster</code> function groups together color values that are close
+                to one another, so that the entire color range from 0 to 100 only has the specified
+                number of unique colors in it.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>gray(poster(x, (y+11)/10))</pre>
+            </div>
+            <p>
+                Like we saw above with <code>dist</code>, the number of color groups to use for
+                <code>poster</code> doesn't need to be a fixed value either.
+            </p>
+        </div>
+
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>red(reflect(poster(x*4, (y+21)/20)))</pre>
+            </div>
+        </div>
+        <div data-example="true">
+            <div>
+                <canvas width="100" height="100"></canvas>
+                <pre>red(poster(reflect(x*4), (y+21)/20))</pre>
+            </div>
+        </div>
+
+
+
+
+
+
+
+
+
+
+    </section>
+
+    <script type="text/javascript">
+        const examples = document.querySelectorAll('section#examples [data-example]');
+        examples.forEach((ex) => {
+            const canvas = ex.querySelector("canvas")
+            const codeEl = ex.querySelector("pre")
+            const code = codeEl.innerText;
+            drawCanvas(code, canvas, (error) => {
+                throw error;
+            });
+        })
+    </script>
+</body>
+
+</html>
