@@ -7,18 +7,38 @@
     <style type="text/css">
         #colorfuncs section[data-colorfunc] {
             display: inline-block;
-            margin-left: 20px;
+            margin-left: 30px;
             width: 200px;
             vertical-align: top;
             text-align: center;
         }
 
+        #colorfuncs section[data-colorfunc] article p {
+            text-align: left;
+        }
+
+        #distFuncs section[data-dist-func] {
+            display: inline-block;
+            margin-left: 30px;
+            width: 200px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        #distFuncs section[data-dist-func] article p {
+            text-align: justify;
+        }
+
         #oneDimMaps section[data-1dmap] {
             display: inline-block;
-            margin-left: 20px;
+            margin-left: 30px;
             width: 540px;
             vertical-align: top;
             text-align: center;
+        }
+
+        #oneDimMaps section[data-1dmap] article p {
+            text-align: justify;
         }
     </style>
 
@@ -27,8 +47,53 @@
         function onLoad() {
             loadColorFunctions();
             load1DMapFunctions();
+            loadDistFunctions();
         }
 
+        function loadDistFunctions() {
+            const functionSections = document.querySelectorAll('#distFuncs section[data-dist-func]');
+            functionSections.forEach((section) => {
+                const funcName = section.getAttribute("data-dist-func");
+                const funcArgs = JSON.parse(section.getAttribute("data-dist-func-args") ?? "[50, 50]");
+                const calc = new CalcPixel();
+                const func = () => calc[funcName](...funcArgs);
+                const contents = section.querySelectorAll("*")
+                while (section.firstChild !== null) {
+                    section.removeChild(section.firstChild);
+                }
+
+                const title = document.createElement("h4");
+                const codeSpan = document.createElement("code");
+                const argsString = funcArgs.map(a => JSON.stringify(a)).join(",")
+                codeSpan.appendChild(document.createTextNode(`${funcName}(ptx, pty)`));
+                title.appendChild(codeSpan);
+                section.appendChild(title);
+
+                const exampleContainer = document.createElement("div")
+                const exampleCanvas = document.createElement("canvas");
+                exampleCanvas.setAttribute("width", 100);
+                exampleCanvas.setAttribute("height", 100);
+                exampleCanvas.style.border = "1px solid #88c";
+                const code = `gray(${funcName}(${argsString}))`
+                drawCanvas(code, exampleCanvas, (e) => {
+                    throw e;
+                });
+                exampleContainer.appendChild(exampleCanvas);
+                const exampleLabel = document.createElement("div");
+                exampleLabel.style.fontFamily = "monospace";
+                exampleLabel.appendChild(document.createTextNode(code))
+                exampleContainer.appendChild(exampleLabel);
+                section.appendChild(exampleContainer);
+
+                const container = document.createElement("article");
+                contents.forEach(child => {
+                    container.appendChild(child);
+                })
+                section.appendChild(container);
+
+            });
+
+        }
         function load1DMapFunctions() {
             const functionSections = document.querySelectorAll('#oneDimMaps section[data-1dmap]');
             functionSections.forEach((section) => {
@@ -136,7 +201,6 @@
                 exampleCanvas.setAttribute("width", 100);
                 exampleCanvas.setAttribute("height", 100);
                 exampleCanvas.style.border = "1px solid #88c";
-                // exampleCanvas.style.marginBottom = `${padding}px`;
                 const multiplier = section.getAttribute("data-1dmap-multiplier") ?? "1";
                 const firstArg = multiplier === "1" ? "x" : `${multiplier}*x`;
                 const exampleArgsString = [firstArg, ...(funcArgs.map((a) => JSON.stringify(a)).join(", "))];
@@ -176,7 +240,6 @@
                 codeSpan.appendChild(document.createTextNode(`${funcName}(c)`));
                 title.appendChild(codeSpan);
                 section.appendChild(title);
-
 
                 const canvas = document.createElement("canvas");
                 canvas.setAttribute("width", 100);
@@ -263,7 +326,7 @@
                 these functions take you from one place on that gradient to another place on the gradient.
             </p>
             <p>
-                These functions are also <em>cyclic</em>, meaning they repeat over and over.
+                Some, but not all, of these functions are also <em>cyclic</em>, meaning they repeat over and over.
             </p>
 
             <section id="oneDimMaps">
@@ -289,6 +352,53 @@
                 </section>
 
                 <section data-1dmap="poster" data-1dmap-args="[6]">
+                </section>
+
+                <section data-1dmap="log">
+                </section>
+
+                <section data-1dmap="sqrt" data-1dmap-multiplier="50">
+                </section>
+            </section>
+        </section>
+
+        <section>
+            <h3>Distance Functions</h3>
+            <p>
+                These functions all take a pair of arguments specifying the x and y location of a point,
+                and return some value that relates the <em>current</em> pixel with the specified point.
+            </p>
+
+            <section id="distFuncs">
+                <section data-dist-func="dist">
+                    <p>
+                        Returns the direct distance between the current pixel and the specified
+                        point. When the specified point is a fixed location, it creates concentric
+                        circles around that point.
+                    </p>
+                </section>
+                <section data-dist-func="theta">
+                    <p>
+                        Returns the angle between the current pixel and the specified point, measured
+                        from 0 to 100, where 0 is no angle and 100 is all the way around. The angles
+                        are measured clockwise from due-left.
+                    </p>
+                </section>
+                <section data-dist-func="mandelbrot">
+                    <p>
+                    </p>
+                </section>
+                <section data-dist-func="taxi">
+                    <p>
+                    </p>
+                </section>
+                <section data-dist-func="cheby">
+                    <p>
+                    </p>
+                </section>
+                <section data-dist-func="cos_dist">
+                    <p>
+                    </p>
                 </section>
             </section>
         </section>

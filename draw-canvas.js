@@ -93,15 +93,59 @@ class CalcPixel {
         }
         return v;
     }
+    sqrt(v) {
+        v = v < 0 ? 0 : v;
+        return Math.sqrt(v);
+    }
+    log(v) {
+        v = v < 1 ? 1 : v;
+        return 100 * Math.log(v) / Math.log(100);
+    }
     dist(ptx, pty) {
         const dx = this._x - ptx;
         const dy = this._y - pty;
         return Math.sqrt(dx * dx + dy * dy);
     }
+    cheby(ptx, pty) {
+        const dx = this._x - ptx;
+        const dy = this._y - pty;
+        return Math.max(dx, dy);
+    }
+    taxi(ptx, pty) {
+        const dx = this._x - ptx;
+        const dy = this._y - pty;
+        return dx + dy;
+    }
+    cos_dist(ptx, pty) {
+        const theta1 = Math.atan2(pty, ptx);
+        const theta2 = Math.atan2(this._y, this._x);
+        const dtheta = theta2 - theta1;
+        return 100 * Math.cos(dtheta);
+    }
     theta(ptx, pty) {
         const dx = this._x - ptx;
         const dy = this._y - pty;
         return 50 + (50 * Math.atan2(dy, dx) / Math.PI);
+    }
+    mandelbrot(ptx, pty, ...zoom) {
+        const scale = 100 / 3.0;
+        const [zx, zy] = zoom.length === 0 ? [1, 1] : zoom.length === 1 ? [zoom[0], zoom[0]] : zoom;
+        const MAX_N = 40;
+        let za = 0;
+        let zb = 0;
+        let cx = ((this._x - ptx + 50) / scale / zx) - (2.5 / zx);
+        let cy = ((this._y - pty + 50) / scale / zy) - (1.5 / zy);
+        let n;
+        for (n = 0; n <= MAX_N; n++) {
+            const d = za * za + zb * zb;
+            if (d > 4) {
+                break;
+            }
+            const nextZ = [za * za - zb * zb + cx, 2 * za * zb + cy];
+            za = nextZ[0];
+            zb = nextZ[1];
+        }
+        return 100 * n / MAX_N;
     }
     sin(c) {
         return (Math.sin(c * Math.PI / 50) + 1) * 50;
