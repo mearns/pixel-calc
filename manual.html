@@ -1,0 +1,298 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Pixel-Calc User's Manual</title>
+
+    <style type="text/css">
+        #colorfuncs section[data-colorfunc] {
+            display: inline-block;
+            margin-left: 20px;
+            width: 200px;
+            vertical-align: top;
+            text-align: center;
+        }
+
+        #oneDimMaps section[data-1dmap] {
+            display: inline-block;
+            margin-left: 20px;
+            width: 540px;
+            vertical-align: top;
+            text-align: center;
+        }
+    </style>
+
+    <script type="application/javascript" src="draw-canvas.js"></script>
+    <script type="text/javascript">
+        function onLoad() {
+            loadColorFunctions();
+            load1DMapFunctions();
+        }
+
+        function load1DMapFunctions() {
+            const functionSections = document.querySelectorAll('#oneDimMaps section[data-1dmap]');
+            functionSections.forEach((section) => {
+                const funcName = section.getAttribute("data-1dmap");
+                const funcArgs = JSON.parse(section.getAttribute("data-1dmap-args") ?? "[]");
+                const calc = new CalcPixel();
+                const func = (x) => calc[funcName](x, ...funcArgs);
+                const contents = section.querySelectorAll("*")
+                while (section.firstChild !== null) {
+                    section.removeChild(section.firstChild);
+                }
+
+                const title = document.createElement("h4");
+                const codeSpan = document.createElement("code");
+                const argsString = ["c", ...funcArgs].map(String).join(",")
+                codeSpan.appendChild(document.createTextNode(`${funcName}(${argsString})`));
+                title.appendChild(codeSpan);
+                section.appendChild(title);
+
+                const graphContainer = document.createElement("div");
+                section.appendChild(graphContainer);
+
+                const padding = 20;
+                const xmax = 220;
+                const xmin = -120;
+                const xrange = (xmax - xmin) + 1;
+                const w = xrange;
+                const h = 100 + padding + padding;
+
+                const canvas = document.createElement("canvas");
+                canvas.setAttribute("width", w);
+                canvas.setAttribute("height", h);
+                canvas.style.display = "inline-block";
+                const ctx = canvas.getContext("2d");
+                ctx.clearRect(0, 0, w, h);
+
+                // Draw 100-marks
+                ctx.strokeStyle = "black";
+                ctx.lineWidth = 0.5;
+                ctx.beginPath();
+                for (let x = Math.floor(xmin / 100) * 100; x <= xmax; x += 100) {
+                    if (x >= xmin) {
+                        ctx.moveTo(-xmin + x, h - padding + 6);
+                        ctx.lineTo(-xmin + x, padding - 6);
+                    }
+                }
+                ctx.stroke();
+
+                // Share primary region
+                ctx.fillStyle = "#eee";
+                ctx.fillRect(-xmin, padding, 100, 100);
+
+                // Draw primary axes
+                ctx.lineWidth = 1.0;
+                ctx.strokeStyle = "black";
+                ctx.beginPath();
+                ctx.moveTo(0, h - padding);
+                ctx.lineTo(xrange, h - padding);
+                ctx.moveTo(-xmin, h - padding);
+                ctx.lineTo(-xmin, padding - 6);
+                ctx.stroke();
+
+                function fillArrow(ctx, x, y, angle = 0) {
+                    ctx.save();
+                    ctx.translate(x, y);
+                    ctx.rotate(angle);
+                    ctx.moveTo(0, 0);
+                    ctx.beginPath();
+                    ctx.lineTo(-7, 5);
+                    ctx.lineTo(3, 0);
+                    ctx.lineTo(-7, -5);
+                    ctx.lineTo(0, 0);
+                    ctx.fill();
+                    ctx.restore();
+                }
+
+                // Label X axis
+                ctx.textAlign = "center";
+                ctx.textBaseline = "middle";
+                ctx.fillStyle = "black";
+                ctx.font = "12pt serif";
+                ctx.strokeText("0", -xmin, padding + 100 + 12);
+                ctx.strokeText("c", -xmin + 47, padding + 100 + 12);
+                ctx.strokeText("100", -xmin + 100, padding + 100 + 12);
+                fillArrow(ctx, -xmin + 9, padding + 100 + 12, Math.PI)
+                ctx.beginPath();
+                ctx.moveTo(-xmin + 9, padding + 100 + 12);
+                ctx.lineTo(-xmin + 40, padding + 100 + 12);
+                ctx.moveTo(-xmin + 53, padding + 100 + 12);
+                ctx.lineTo(-xmin + 100 - 15, padding + 100 + 12);
+                ctx.stroke();
+                fillArrow(ctx, -xmin + 100 - 15, padding + 100 + 12);
+
+                ctx.fillStyle = "blue";
+                for (let x = xmin; x <= xmax; x++) {
+                    const y = func(x);
+                    ctx.fillRect(-xmin + x, 100 - y + padding, 1, 1);
+                }
+                graphContainer.appendChild(canvas);
+
+                const exampleContainer = document.createElement("div")
+                exampleContainer.style.display = "inline-block";
+                exampleContainer.style.marginLeft = "40px";
+                const exampleCanvas = document.createElement("canvas");
+                exampleCanvas.setAttribute("width", 100);
+                exampleCanvas.setAttribute("height", 100);
+                exampleCanvas.style.border = "1px solid #88c";
+                // exampleCanvas.style.marginBottom = `${padding}px`;
+                const multiplier = section.getAttribute("data-1dmap-multiplier") ?? "1";
+                const firstArg = multiplier === "1" ? "x" : `${multiplier}*x`;
+                const exampleArgsString = [firstArg, ...(funcArgs.map((a) => JSON.stringify(a)).join(", "))];
+                const code = `gray(${funcName}(${exampleArgsString}))`
+                drawCanvas(code, exampleCanvas, (e) => {
+                    throw e;
+                });
+                exampleContainer.appendChild(exampleCanvas);
+                const exampleLabel = document.createElement("div");
+                exampleLabel.style.fontFamily = "monospace";
+                exampleLabel.appendChild(document.createTextNode(code))
+                exampleContainer.appendChild(exampleLabel);
+                graphContainer.appendChild(exampleContainer);
+
+                const container = document.createElement("article");
+                contents.forEach(child => {
+                    container.appendChild(child);
+                })
+                section.appendChild(container);
+
+            });
+
+        }
+
+        function loadColorFunctions() {
+            const colorFunctions = document.querySelectorAll('#colorfuncs section[data-colorfunc]');
+            colorFunctions.forEach((section) => {
+                const funcName = section.getAttribute("data-colorfunc");
+                const contents = section.querySelectorAll("*")
+                while (section.firstChild !== null) {
+                    section.removeChild(section.firstChild);
+                }
+
+                const code = `${funcName}(x)`;
+                const title = document.createElement("h4");
+                const codeSpan = document.createElement("code");
+                codeSpan.appendChild(document.createTextNode(`${funcName}(c)`));
+                title.appendChild(codeSpan);
+                section.appendChild(title);
+
+
+                const canvas = document.createElement("canvas");
+                canvas.setAttribute("width", 100);
+                canvas.setAttribute("height", 100);
+                section.appendChild(canvas);
+
+                const container = document.createElement("article");
+                contents.forEach(child => {
+                    container.appendChild(child);
+                })
+                section.appendChild(container);
+
+                drawCanvas(code, canvas, (error) => {
+                    throw error;
+                });
+            })
+        }
+    </script>
+</head>
+
+<body onload="javascript:onLoad()">
+    <h1>Pixel-Calc User's Manual</h1>
+
+    <section>
+        <h2>Reference</h2>
+
+        <section>
+            <h3>Color Functions</h3>
+
+            <p>
+                These are the functions you use to add color to the current pixel. The primary
+                functions are <code>red(c)</code>, <code>green(c)</code>, and <code>blue(c)</code>;
+                all of these others are actually based on these three.
+            </p>
+            <p>
+                You can imagine each of these functions as defining a <em>gradient</em> of color,
+                and the value you pass into the function, from 0 through 100, specifies where on
+                that gradient to select the color from.
+            </p>
+            <p>
+                For the simple color functions, the gradient goes from black at 0, to the fully-saturated
+                color at 100. For these functions, values outside of this range are <em>clamped</em>: values
+                below 0 are treated the same as 0 (black) and values above 100 are treated the same as 100
+                (fully-saturated).
+            </p>
+            <p>
+                Other color functions, like <code>rainbow(c)</code> are <em>cyclic</em>, so they keep repeating
+                over and over every 100 units. For instance, <code>rainbow(117)</code> is the same as
+                <code>rainbow(17)</code>, which is the same as <code>rainbow(-83)</code>.
+            </p>
+            <section id="colorfuncs">
+                <section data-colorfunc="red">
+                    <p>Red primary color function.</p>
+                </section>
+                <section data-colorfunc="green">
+                    <p>Green primary color function.</p>
+                </section>
+                <section data-colorfunc="blue">
+                    <p>Blue primary color function.</p>
+                </section>
+                <section data-colorfunc="yellow">
+                    <p>Yellow secondary color function, sets equal amounts of red and green.</p>
+                </section>
+                <section data-colorfunc="cyan">
+                    <p>Cyan secondary color function, sets equal amounts of blue and green.</p>
+                </section>
+                <section data-colorfunc="purple">
+                    <p>Purple secondary color function, sets equal amounts of blue and red.</p>
+                </section>
+                <section data-colorfunc="gray">
+                    <p>Sets equal amounts of all three color components: red, green, and blue.</p>
+                </section>
+                <section data-colorfunc="rainbow">
+                    <p>Cyclic color function that paints a rainbox in ROYGBV order from 0 to 100.</p>
+                </section>
+            </section>
+        </section>
+
+        <section>
+            <h3>One-Dimensional Map Functions</h3>
+            <p>
+                These functions all take an argument in the range from 0 through 100 and return another
+                value in the same range. If you imagine the gradient described for the color functions,
+                these functions take you from one place on that gradient to another place on the gradient.
+            </p>
+            <p>
+                These functions are also <em>cyclic</em>, meaning they repeat over and over.
+            </p>
+
+            <section id="oneDimMaps">
+                <section data-1dmap="roll" data-1dmap-multiplier="3">
+                    <p>
+                        When the value goes above 100, it "rolls over" back to 0. Likewise,
+                        if it goes below 0, it "rolls back" to 100.
+                    </p>
+                </section>
+
+                <section data-1dmap="reflect" data-1dmap-multiplier="3">
+                    <p>
+                        The value grows twice as fast as the input, but when it would go above 100,
+                        it "bounces back" and starts going back down. When it would go below 0,
+                        it "bounces back" and starts going back up.
+                    </p>
+                </section>
+
+                <section data-1dmap="sin" data-1dmap-multiplier="3">
+                </section>
+
+                <section data-1dmap="cos" data-1dmap-multiplier="3">
+                </section>
+
+                <section data-1dmap="poster" data-1dmap-args="[6]">
+                </section>
+            </section>
+        </section>
+    </section>
+</body>
+
+</html>
