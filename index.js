@@ -10,14 +10,14 @@ function run() {
         const title = document.createElement("h3");
         title.appendChild(document.createTextNode("Error running code:"))
         errorDiv.appendChild(title);
-        errorDiv.appendChild(document.createTextNode(`x = ${Math.round(x)}`))
+        errorDiv.appendChild(document.createTextNode(`x = ${Math.round(error.x)}`))
         errorDiv.appendChild(document.createElement("br"));
-        errorDiv.appendChild(document.createTextNode(`y = ${Math.round(y)}`))
+        errorDiv.appendChild(document.createTextNode(`y = ${Math.round(error.y)}`))
         errorDiv.appendChild(document.createElement("br"));
         const subtitle = document.createElement("h4");
         subtitle.appendChild(document.createTextNode("Error:"));
         errorDiv.appendChild(subtitle);
-        errorDiv.appendChild(document.createTextNode(error));
+        errorDiv.appendChild(document.createTextNode(error.message ?? String(error)));
         console.error(error);
     };
     setTimeout(() => {

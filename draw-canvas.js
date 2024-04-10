@@ -193,6 +193,6 @@ function drawCanvas(newCode, canvas, onError) {
             }
         }
     } catch (error) {
-        onError(error);
+        onError(Object.assign(error, { x, y, i, j }));
     }
 }
