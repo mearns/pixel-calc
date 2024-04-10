@@ -107,13 +107,13 @@ class CalcPixel {
         return Math.sqrt(dx * dx + dy * dy);
     }
     cheby(ptx, pty) {
-        const dx = this._x - ptx;
-        const dy = this._y - pty;
+        const dx = Math.abs(this._x - ptx);
+        const dy = Math.abs(this._y - pty);
         return Math.max(dx, dy);
     }
     taxi(ptx, pty) {
-        const dx = this._x - ptx;
-        const dy = this._y - pty;
+        const dx = Math.abs(this._x - ptx);
+        const dy = Math.abs(this._y - pty);
         return dx + dy;
     }
     cos_dist(ptx, pty) {
